@@ -63,18 +63,23 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void _generateRandomTiles(int count) {
-    final emptyTiles = <Tile>[];
+    final allEmptyTiles = <Tile>[];
     for (var row in board.gameboard) {
       for (var singleTile in row) {
         if (singleTile.value == 0) {
-          emptyTiles.add(singleTile);
+          allEmptyTiles.add(singleTile);
         }
       }
     }
 
-    emptyTiles.shuffle();
-    for (var i = 0; i < count && i < emptyTiles.length; i++) {
-      emptyTiles[i].value = randomNum.nextBool() ? 2 : 4;
+    if (allEmptyTiles.isEmpty) {
+      return;
+    }
+
+    allEmptyTiles.shuffle();
+
+    for (var i = 0; i < count && i < allEmptyTiles.length; i++) {
+      allEmptyTiles[i].value = randomNum.nextBool() ? 2 : 4;
     }
   }
 
