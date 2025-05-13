@@ -33,36 +33,8 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  final List<Tile> tiles = [];
+  late Board board;
   final Random randomNum = Random();
-
-  Tile? tileAt(int x, int y) {
-    for (var tile in tiles) {
-      if (tile.x == x && tile.y == y) return tile;
-    }
-    return null;
-  }
-
-  void _generateInitialTiles() {
-    int tileCount =
-        3 +
-        randomNum.nextInt(2); // so the num generated is between 2 and 3 inclus
-
-    final positions = <String>{};
-
-    while (tiles.length < tileCount) {
-      // so the coordinate value generated is between 0 and 4 inclus
-      int x = randomNum.nextInt(4);
-      int y = randomNum.nextInt(4);
-      String key = '$x,$y';
-
-      if (!positions.contains(key)) {
-        positions.add(key);
-        int value = randomNum.nextBool() ? 2 : 4;
-        tiles.add(Tile(x: x, y: y, value: value));
-      }
-    }
-  }
 
   void onSwipeLeft() {
     print('swipe left');
@@ -83,7 +55,27 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void initState() {
     super.initState();
-    _generateInitialTiles();
+
+    board = Board(row: 4, col: 4)..initBoard();
+    // nextInt(2) donne soit 0 ou 1
+    int initialNumTiles = 3 + randomNum.nextInt(2);
+    _generateRandomTiles(initialNumTiles);
+  }
+
+  void _generateRandomTiles(int count) {
+    final emptyTiles = <Tile>[];
+    for (var row in board.gameboard) {
+      for (var singleTile in row) {
+        if (singleTile.value == 0) {
+          emptyTiles.add(singleTile);
+        }
+      }
+    }
+
+    emptyTiles.shuffle();
+    for (var i = 0; i < count && i < emptyTiles.length; i++) {
+      emptyTiles[i].value = randomNum.nextBool() ? 2 : 4;
+    }
   }
 
   @override
@@ -114,13 +106,13 @@ class _MyHomePageState extends State<MyHomePage> {
             children: List.generate(16, (index) {
               int x = index % 4;
               int y = index ~/ 4;
-              Tile? tile = tileAt(x, y);
+              final tile = board.getTile(y, x);
 
               return Container(
                 alignment: Alignment.center,
                 decoration: BoxDecoration(
                   color:
-                      tile != null
+                      tile.value != 0
                           ? theme.colorScheme.primaryFixedDim
                           : theme.colorScheme.secondary,
 
@@ -130,7 +122,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   ),
                 ),
                 child:
-                    tile != null
+                    tile.value != 0
                         ? Text(
                           tile.value.toString(),
                           style: const TextStyle(
