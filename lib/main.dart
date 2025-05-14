@@ -1,7 +1,8 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:twenty_forty_eight/models/game.dart';
+import '../models/board.dart';
+import '../models/tile.dart';
 
 void main() {
   runApp(const MyApp());
@@ -34,18 +35,20 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   late Board gameBoard;
+  final int rows = 4;
+  final int columns = 4;
   final Random randomNum = Random();
 
   void onSwipeLeft() {
     if (!canMoveLeft()) return;
 
     setState(() {
-      for (var r = 0; r < 4; r++) {
-        for (var c = 0; c < 4; c++) {
+      for (var r = 0; r < rows; r++) {
+        for (var c = 0; c < columns; c++) {
           mergeLeft(r, c);
         }
       }
-      _generateRandomTiles(1);  
+      _generateRandomTiles(1);
       _resetMergeFlags();
     });
   }
@@ -55,12 +58,12 @@ class _MyHomePageState extends State<MyHomePage> {
       return;
     }
     setState(() {
-      for (int r = 0; r < 4; r++) {
-        for (int c = 4 - 2; c >= 0; c--) {
+      for (int r = 0; r < rows; r++) {
+        for (int c = columns - 2; c >= 0; c--) {
           mergeRight(r, c);
         }
       }
-      _generateRandomTiles(1);  
+      _generateRandomTiles(1);
       _resetMergeFlags();
     });
   }
@@ -71,12 +74,12 @@ class _MyHomePageState extends State<MyHomePage> {
     }
 
     setState(() {
-      for (int r = 0; r < 4; r++) {
-        for (int c = 0; c < 4; c++) {
+      for (int r = 0; r < rows; r++) {
+        for (int c = 0; c < columns; c++) {
           mergeUp(r, c);
         }
       }
-      _generateRandomTiles(1);  
+      _generateRandomTiles(1);
       _resetMergeFlags();
     });
   }
@@ -87,12 +90,12 @@ class _MyHomePageState extends State<MyHomePage> {
     }
 
     setState(() {
-      for (int r = 4 - 2; r >= 0; r--) {
-        for (int c = 0; c < 4; c++) {
+      for (int r = rows - 2; r >= 0; r--) {
+        for (int c = 0; c < columns; c++) {
           mergeDown(r, c);
         }
       }
-      _generateRandomTiles(1); 
+      _generateRandomTiles(1);
       _resetMergeFlags();
     });
   }
@@ -101,7 +104,7 @@ class _MyHomePageState extends State<MyHomePage> {
   void initState() {
     super.initState();
 
-    gameBoard = Board(row: 4, col: 4)..initBoard();
+    gameBoard = Board(row: rows, col: columns)..initBoard();
     // nextInt(2) donne soit 0 ou 1
     int initialNumTiles = 3 + randomNum.nextInt(2);
     _generateRandomTiles(initialNumTiles);
@@ -139,6 +142,7 @@ class _MyHomePageState extends State<MyHomePage> {
       if (!a.isMerged && !b.isEmpty()) {
         a.isMerged = true;
       }
+      return;
     }
 
     // case eg when merging b 2 onto an empty cell a
@@ -146,7 +150,7 @@ class _MyHomePageState extends State<MyHomePage> {
       a.value = b.value;
       b.value = 0;
       // case eg when a and b have same value
-    } else if (a.value == b.value) {
+    } else if (a.value == b.value && !a.isMerged) {
       a.value = a.value + b.value;
       b.value = 0;
       a.isMerged = true;
@@ -166,7 +170,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void mergeRight(int r, int c) {
     // Eg.  Merging c with d, then b with c with d etc. Pushing the value daal to the very right
-    while (c < 4 - 1) {
+    while (c < columns - 1) {
       ////////////////////////////////////////////////////////////////////////////////////////HERE/////////////////////////////////////////////////////////////////
       merge(gameBoard.getTile(r, c + 1), gameBoard.getTile(r, c));
       c += 1;
@@ -181,7 +185,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void mergeDown(int r, int c) {
-    while (r < 4 - 1) {
+    while (r < rows - 1) {
       ////////////////////////////////////////////////////////////////////////////////////////HERE/////////////////////////////////////////////////////////////////
       merge(gameBoard.getTile(r + 1, c), gameBoard.getTile(r, c));
       r += 1;
@@ -189,9 +193,9 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   bool canMoveLeft() {
-    for (int r = 0; r < 4; r++) {
+    for (int r = 0; r < rows; r++) {
       // Careful: c shouldn't start at 0
-      for (int c = 1; c < 4; c++) {
+      for (int c = 1; c < columns; c++) {
         if (canMerge(gameBoard.getTile(r, c), gameBoard.getTile(r, c - 1))) {
           return true;
         }
@@ -202,9 +206,9 @@ class _MyHomePageState extends State<MyHomePage> {
 
   // Add this to your code
   bool canMoveRight() {
-    for (int r = 0; r < 4; r++) {
+    for (int r = 0; r < rows; r++) {
       // Iterate in the opposite direction from right to left
-      for (int c = 4 - 2; c >= 0; c--) {
+      for (int c = columns - 2; c >= 0; c--) {
         if (canMerge(gameBoard.getTile(r, c + 1), gameBoard.getTile(r, c))) {
           return true;
         }
@@ -214,8 +218,8 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   bool canMoveUp() {
-    for (int r = 1; r < 4; r++) {
-      for (int c = 0; c < 4; c++) {
+    for (int r = 1; r < rows; r++) {
+      for (int c = 0; c < columns; c++) {
         if (canMerge(gameBoard.getTile(r - 1, c), gameBoard.getTile(r, c))) {
           return true;
         }
@@ -225,8 +229,8 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   bool canMoveDown() {
-    for (int r = 4 - 2; r >= 0; r--) {
-      for (int c = 0; c < 4; c++) {
+    for (int r = rows - 2; r >= 0; r--) {
+      for (int c = 0; c < columns; c++) {
         if (canMerge(gameBoard.getTile(r + 1, c), gameBoard.getTile(r, c))) {
           return true;
         }
@@ -269,8 +273,8 @@ class _MyHomePageState extends State<MyHomePage> {
             shrinkWrap: true, // makes GridView size properly inside Center
             crossAxisCount: 4,
             children: List.generate(16, (index) {
-              int x = index % 4;
-              int y = index ~/ 4;
+              int x = index % columns;
+              int y = index ~/ rows;
               final tile = gameBoard.getTile(y, x);
 
               return Container(
