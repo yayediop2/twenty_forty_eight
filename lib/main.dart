@@ -171,7 +171,6 @@ class _MyHomePageState extends State<MyHomePage> {
   void mergeRight(int r, int c) {
     // Eg.  Merging c with d, then b with c with d etc. Pushing the value daal to the very right
     while (c < columns - 1) {
-      ////////////////////////////////////////////////////////////////////////////////////////HERE/////////////////////////////////////////////////////////////////
       merge(gameBoard.getTile(r, c + 1), gameBoard.getTile(r, c));
       c += 1;
     }
@@ -186,7 +185,6 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void mergeDown(int r, int c) {
     while (r < rows - 1) {
-      ////////////////////////////////////////////////////////////////////////////////////////HERE/////////////////////////////////////////////////////////////////
       merge(gameBoard.getTile(r + 1, c), gameBoard.getTile(r, c));
       r += 1;
     }
@@ -194,7 +192,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   bool canMoveLeft() {
     for (int r = 0; r < rows; r++) {
-      // Careful: c shouldn't start at 0
+      // c shouldn't start at 0
       for (int c = 1; c < columns; c++) {
         if (canMerge(gameBoard.getTile(r, c), gameBoard.getTile(r, c - 1))) {
           return true;
@@ -204,7 +202,6 @@ class _MyHomePageState extends State<MyHomePage> {
     return false;
   }
 
-  // Add this to your code
   bool canMoveRight() {
     for (int r = 0; r < rows; r++) {
       // Iterate in the opposite direction from right to left
@@ -269,7 +266,7 @@ class _MyHomePageState extends State<MyHomePage> {
         child: Center(
           child: GridView.count(
             physics:
-                const NeverScrollableScrollPhysics(), // disables scrolling so swipe up ad down can work
+                const NeverScrollableScrollPhysics(), // disables scrolling so swipe up and down can work
             shrinkWrap: true, // makes GridView size properly inside Center
             crossAxisCount: 4,
             children: List.generate(16, (index) {
