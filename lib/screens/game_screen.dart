@@ -31,6 +31,7 @@ class _MyHomePageState extends State<MyHomePage> {
       }
       _generateRandomTiles(1);
       _resetMergeFlags();
+      checkGameOver();
     });
   }
 
@@ -46,6 +47,7 @@ class _MyHomePageState extends State<MyHomePage> {
       }
       _generateRandomTiles(1);
       _resetMergeFlags();
+      checkGameOver();
     });
   }
 
@@ -62,6 +64,7 @@ class _MyHomePageState extends State<MyHomePage> {
       }
       _generateRandomTiles(1);
       _resetMergeFlags();
+      checkGameOver();
     });
   }
 
@@ -78,6 +81,7 @@ class _MyHomePageState extends State<MyHomePage> {
       }
       _generateRandomTiles(1);
       _resetMergeFlags();
+      checkGameOver();
     });
   }
 
@@ -229,6 +233,36 @@ class _MyHomePageState extends State<MyHomePage> {
       for (var tile in row) {
         tile.isMerged = false;
       }
+    }
+  }
+
+  bool isGameOver() {
+    return !canMoveLeft() && !canMoveRight() && !canMoveUp() && !canMoveDown();
+  }
+
+  void checkGameOver() {
+    if (isGameOver()) {
+      showDialog(
+        context: context,
+        builder:
+            (context) => AlertDialog(
+              title: const Text('Game Over'),
+              content: Text('Your score: $score'),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                    setState(() {
+                      gameBoard.initBoard();
+                      score = 0;
+                      _generateRandomTiles(3 + randomNum.nextInt(2));
+                    });
+                  },
+                  child: const Text('New Game'),
+                ),
+              ],
+            ),
+      );
     }
   }
 
