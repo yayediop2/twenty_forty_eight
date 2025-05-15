@@ -17,6 +17,7 @@ class _MyHomePageState extends State<MyHomePage> {
   late Board gameBoard;
   final int rows = 4;
   final int columns = 4;
+  int score = 0;
   final Random randomNum = Random();
 
   void onSwipeLeft() {
@@ -133,6 +134,7 @@ class _MyHomePageState extends State<MyHomePage> {
     } else if (a.value == b.value && !a.isMerged) {
       a.value = a.value + b.value;
       b.value = 0;
+      score += a.value;
       a.isMerged = true;
       // case every other scenario
     } else {
@@ -250,18 +252,42 @@ class _MyHomePageState extends State<MyHomePage> {
           }
         },
         child: Center(
-          child: GridView.count(
-            physics:
-                const NeverScrollableScrollPhysics(), // disables scrolling so swipe up and down can work
-            shrinkWrap: true, // makes GridView size properly inside Center
-            crossAxisCount: 4,
-            children: List.generate(16, (index) {
-              int x = index % columns;
-              int y = index ~/ rows;
-              final tile = gameBoard.getTile(y, x);
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // SCORE DISPLAY
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text(
+                  'Score: $score',
+                  style: const TextStyle(fontSize: 20, color: Colors.black),
+                ),
+              ),
+              // BUTTON NEW GAME
+              ElevatedButton(
+                onPressed: () {
+                  setState(() {
+                    gameBoard.initBoard();
+                    score = 0;
+                    _generateRandomTiles(3 + randomNum.nextInt(2));
+                  });
+                },
+                child: Text('New Game'),
+              ),
+              GridView.count(
+                physics:
+                    const NeverScrollableScrollPhysics(), // disables scrolling so swipe up and down can work
+                shrinkWrap: true, // makes GridView size properly inside Center
+                crossAxisCount: 4,
+                children: List.generate(16, (index) {
+                  int x = index % columns;
+                  int y = index ~/ rows;
+                  final tile = gameBoard.getTile(y, x);
 
-              return TileWidget(tile: tile, theme: theme);
-            }),
+                  return TileWidget(tile: tile, theme: theme);
+                }),
+              ),
+            ],
           ),
         ),
       ),
